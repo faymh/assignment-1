@@ -1,0 +1,214 @@
+class Customer:
+    """Class to represent a customer"""
+
+    # Constructor
+    def __init__(self, name="", contact_info="", email="", address="", reservation_numb=""):
+        self.__name = name
+        self.__contact_info = contact_info
+        self.__email = email
+        self.__address = address
+        self.__reservation_numb = reservation_numb
+
+    # Setters & Getters
+    def getName(self):
+        return self.__name
+
+    def setName(self, name=""):
+        self.__name = name
+
+    def getContactInfo(self):
+        return self.__contact_info
+
+    def setContactInfo(self, contact_info=""):
+        self.__contact_info = contact_info
+
+    def getEmail(self):
+        return self.__email
+
+    def setEmail(self, email=""):
+        self.__email = email
+
+    def getAddress(self):
+        return self.__address
+
+    def setAddress(self, address=""):
+        self.__address = address
+
+    def getReservationNumb(self):
+        return self.__reservation_numb
+
+    def setReservationNumb(self, reservation_numb=""):
+        self.__reservation_numb = reservation_numb
+
+    # Display function
+    def __str__(self):
+        return f"Name: {self.__name}, Contact Info: {self.__contact_info}, Email: {self.__email}, Address: {self.__address}, Reservation Number: {self.__reservation_numb}"
+
+
+# Creating Objects
+customer1 = Customer("Faay AlBlooshi", "056787878", "faymh@gmail.com", "Dubai", "SS32323")
+print(customer1)
+
+
+class Reservation:
+    """Class to represent a reservation"""
+
+    # Constructor
+    def __init__(self, reservation_numb="", checkin_date="", checkout_date="", room_type="", guest_count=1,
+                 total_cost=0.0):
+        self.__reservation_numb = reservation_numb
+        self.__checkin_date = checkin_date
+        self.__checkout_date = checkout_date
+        self.__room_type = room_type
+        self.__guest_count = guest_count
+        self.__total_cost = total_cost
+
+    # Setters & Getters
+    def getReservationNumb(self):
+        return self.__reservation_numb
+
+    def setReservationNumb(self, reservation_numb=""):
+        self.__reservation_numb = reservation_numb
+
+    def getCheckInDate(self):
+        return self.__checkin_date
+
+    def setCheckInDate(self, checkin_date=""):
+        self.__checkin_date = checkin_date
+
+    def getCheckOutDate(self):
+        return self.__checkout_date
+
+    def setCheckOutDate(self, checkout_date=""):
+        self.__checkout_date = checkout_date
+
+    def getRoomType(self):
+        return self.__room_type
+
+    def setRoomType(self, room_type=""):
+        self.__room_type = room_type
+
+    def getGuestCount(self):
+        return self.__guest_count
+
+    def setGuestCount(self, guest_count=1):
+        self.__guest_count = guest_count
+
+    def getTotalCost(self):
+        return self.__total_cost
+
+    def setTotalCost(self, total_cost=0.0):
+        self.__total_cost = total_cost
+
+    # Display function
+    def __str__(self):
+        return f"Reservation: {self.__reservation_numb}, Check-in: {self.__checkin_date}, Check-out: {self.__checkout_date}, Room Type: {self.__room_type}, Guests: {self.__guest_count}, Total Cost: {self.__total_cost}"
+
+
+# Creating Objects
+reservation1 = Reservation("SS32323", "7-7-2024", "9-7-2024", "Sea View", 2, 1500.0)
+print(reservation1)
+
+
+class Room:
+    """Class to represent a room"""
+
+    # Constructor
+    def __init__(self, room_id="", room_type="", price_per_night=0.0, floor=1, availability_status=True):
+        self.__room_id = room_id
+        self.__room_type = room_type
+        self.__price_per_night = price_per_night
+        self.__floor = floor
+        self.__availability_status = availability_status
+
+    # Setters & Getters
+    def getRoomId(self):
+        return self.__room_id
+
+    def setRoomId(self, room_id=""):
+        self.__room_id = room_id
+
+    def getRoomType(self):
+        return self.__room_type
+
+    def setRoomType(self, room_type=""):
+        self.__room_type = room_type
+
+    def getPricePerNight(self):
+        return self.__price_per_night
+
+    def setPricePerNight(self, price_per_night=0.0):
+        self.__price_per_night = price_per_night
+
+    def getFloor(self):
+        return self.__floor
+
+    def setFloor(self, floor=1):
+        self.__floor = floor
+
+    def getAvailability(self):
+        return self.__availability_status
+
+    def setAvailability(self, availability_status=True):
+        self.__availability_status = availability_status
+
+    # Display function
+    def __str__(self):
+        return f"Room ID: {self.__room_id}, Type: {self.__room_type}, Price: {self.__price_per_night}, Floor: {self.__floor}, Available: {self.__availability_status}"
+
+
+# Creating Objects
+room1 = Room("808", "Sea View", 750.0, 10, True)
+print(room1)
+
+
+class Payment:
+    """Class to represent a payment"""
+
+    # Constructor
+    def __init__(self, payment_conf_num="", amount=0.0, payment_method="", payment_date="", payment_status="Pending"):
+        self.__payment_conf_num = payment_conf_num
+        self.__amount = amount
+        self.__payment_method = payment_method
+        self.__payment_date = payment_date
+        self.__payment_status = payment_status
+
+    # Setters & Getters
+    def getPaymentConfNum(self):
+        return self.__payment_conf_num
+
+    def setPaymentConfNum(self, payment_conf_num=""):
+        self.__payment_conf_num = payment_conf_num
+
+    def getAmount(self):
+        return self.__amount
+
+    def setAmount(self, amount=0.0):
+        self.__amount = amount
+
+    def getPaymentMethod(self):
+        return self.__payment_method
+
+    def setPaymentMethod(self, payment_method=""):
+        self.__payment_method = payment_method
+
+    def getPaymentDate(self):
+        return self.__payment_date
+
+    def setPaymentDate(self, payment_date=""):
+        self.__payment_date = payment_date
+
+    def getPaymentStatus(self):
+        return self.__payment_status
+
+    def setPaymentStatus(self, payment_status="Pending"):
+        self.__payment_status = payment_status
+
+    # Display function
+    def __str__(self):
+        return f"Payment Confirmation: {self.__payment_conf_num}, Amount: {self.__amount}, Method: {self.__payment_method}, Date: {self.__payment_date}, Status: {self.__payment_status}"
+
+
+# Creating Objects
+payment1 = Payment("AE12345678", 1500.0, "Credit Card", "7-7-2024", "Completed")
+print(payment1)

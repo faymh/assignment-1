@@ -1,0 +1,253 @@
+from datetime import datetime
+# Class to represent additional details of a book
+class BookDetails:
+    """Class to represent additional details of a book."""
+
+    def __init__(self, isbn, synopsis, num_pages):
+        self._isbn = isbn
+        self._synopsis = synopsis
+        self._num_pages = num_pages
+
+    def __str__(self):
+        return f"ISBN: {self._isbn}, Pages: {self._num_pages}, Synopsis: {self._synopsis[:50]}..."
+
+
+# Class to represent a book in the library
+class Book:
+    """Class to represent a book in the library."""
+
+    def __init__(self, book_id, title, author, release_year, category, base_price):
+        self._book_id = book_id
+        self._title = title
+        self._author = author
+        self._release_year = release_year
+        self._category = category
+        self._base_price = base_price
+        self._details = None
+
+    def __str__(self):
+        return f"{self._title} by {self._author} ({self._release_year}) - ${self._base_price:.2f}"
+
+    def get_price(self):
+        return self._base_price
+
+    def add_details(self, details):
+        if isinstance(details, BookDetails):
+            self._details = details
+
+
+# Class to represent the digital library of e-books
+class DigitalLibrary:
+    """Class to represent the digital library of e-books."""
+
+    def __init__(self):
+        self._collection = []
+
+    def add_book(self, book):
+        if isinstance(book, Book):
+            self._collection.append(book)
+
+    def __str__(self):
+        return f"Digital Library Collection: {len(self._collection)} books"
+
+    def list_books(self):
+        for book in self._collection:
+            print(book)
+
+
+# Class to represent the profile of a user
+class Profile:
+    """Class to represent the profile of a user."""
+
+    def __init__(self):
+        self._contact_number = ""
+        self._address = ""
+
+    def __str__(self):
+        return f"Contact: {self._contact_number}, Address: {self._address}"
+
+    def set_contact_number(self, contact_number):
+        self._contact_number = contact_number
+
+    def set_address(self, address):
+        self._address = address
+
+
+# Class to represent a user in the e-book store
+class User:
+    """Class to represent a user in the e-book store."""
+
+    def __init__(self, user_id, name, email, is_member=False):
+        self._user_id = user_id
+        self._name = name
+        self._email = email
+        self._is_member = is_member
+        self._profile = Profile()
+        self._shopping_bag = ShoppingBag()
+
+    def __str__(self):
+        member_status = "Member" if self._is_member else "Non-member"
+        return f"User: {self._name} ({member_status}), Email: {self._email}"
+
+    def set_membership(self, status):
+        self._is_member = status
+
+    def is_member(self):
+        return self._is_member
+
+
+# Class to represent an item in the shopping bag
+class BagItem:
+    """Class to represent an item in the shopping bag."""
+
+    def __init__(self, book, quantity):
+        self._book = book
+        self._quantity = quantity
+
+    def __str__(self):
+        return f"{self._book} x {self._quantity}"
+
+
+# Class to represent the shopping bag of a user
+class ShoppingBag:
+    """Class to represent the shopping bag of a user."""
+
+    def __init__(self):
+        self._items = []
+
+    def add_item(self, item):
+        if isinstance(item, BagItem):
+            self._items.append(item)
+
+    def __str__(self):
+        return f"Shopping Bag with {len(self._items)} items"
+
+    def list_items(self):
+        for item in self._items:
+            print(item)
+
+
+# Class to generate a receipt for an order
+class Receipt:
+    """Class to generate a receipt for an order."""
+    VAT_RATE = 0.08  # 8% VAT
+
+    def __init__(self, ordered_books):
+        self._ordered_books = ordered_books
+        self._total = self.calculate_total()
+
+    def calculate_total(self):
+        sub_total = sum(book.get_price() for book in self._ordered_books)
+        vat = sub_total * self.VAT_RATE
+        return sub_total + vat
+
+    def __str__(self):
+        return f"Total (incl. VAT): ${self._total:.2f}"
+
+
+# Class to represent discount policies
+class DiscountPolicy:
+    """Class to represent discount policies."""
+
+    def __init__(self, discount_type, discount_value):
+        self._discount_type = discount_type
+        self._discount_value = discount_value
+
+    def apply_discount(self, total_amount):
+        return total_amount - (total_amount * self._discount_value / 100)
+
+    def __str__(self):
+        return f"{self._discount_type} Discount: {self._discount_value}%"
+
+
+# Class to represent the details of an order
+class OrderDetails:
+    """Class to represent the details of an order."""
+
+    def __init__(self):
+        self._order_date = datetime.now()
+        self._ordered_books = []
+        self._receipt = None
+
+    def add_book(self, book):
+        if isinstance(book, Book):
+            self._ordered_books.append(book)
+
+    def generate_receipt(self):
+        self._receipt = Receipt(self._ordered_books)
+        return self._receipt
+
+    def __str__(self):
+        return f"Order placed on {self._order_date}"
+
+
+# Initialize the Digital Library
+library = DigitalLibrary()
+
+# Test Case 1: Add a new e-book to the catalog
+print("\n--- Test Case 1: Add E-Books ---")
+book1 = Book("FF123", "Python", "Sujith", 2020, "Programming", 15.99)
+book2 = Book("FF122", "network", "Maha", 2019, "network", 20.50)
+library.add_book(book1)
+library.add_book(book2)
+library.list_books()
+
+# Test Case 2: Modify an e-book in the catalog by adding details
+print("\n--- Test Case 2: Modify E-Book Details ---")
+details1 = BookDetails("123456789", "python fundementals 101.", 777)
+book1.add_details(details1)
+print(book1)
+
+# Test Case 3: Remove an e-book from the catalog
+print("\n--- Test Case 3: Remove E-Book ---")
+library._collection.remove(book2)  # Assuming direct access for testing purposes
+library.list_books()
+
+# Test Case 4: Add a new customer account
+print("\n--- Test Case 4: Add Customer Account ---")
+user1 = User("FY77", "Fay", "Faymh@gmail.com", True)
+print(user1)
+
+# Test Case 5: Modify customer account information
+print("\n--- Test Case 5: Modify Customer Profile ---")
+user1._profile.set_contact_number("123456789")
+user1._profile.set_address("Dubai,UAE")
+print(user1._profile)
+
+# Test Case 6: Remove a customer account
+print("\n--- Test Case 6: Remove Customer Account ---")
+del user1  # This removes the user instance
+print("User account removed.")
+
+# Test Case 7: Add e-books to the shopping cart
+print("\n--- Test Case 7: Add E-Books to Shopping Cart ---")
+user2 = User("FY21", "Mohammed", "mohammed@gmail.com")
+user2._shopping_bag.add_item(BagItem(book1, 1))
+user2._shopping_bag.add_item(BagItem(book2, 2))
+user2._shopping_bag.list_items()
+
+# Test Case 8: Apply discounts for loyalty program members
+print("\n--- Test Case 8: Apply Loyalty Discount ---")
+discount_policy_loyalty = DiscountPolicy("Loyalty", 10)  # 10% discount for loyalty members
+total_before_discount = sum(item._book.get_price() * item._quantity for item in user2._shopping_bag._items)
+total_after_discount = discount_policy_loyalty.apply_discount(total_before_discount)
+print(f"Total before discount: ${total_before_discount:.2f}")
+print(f"Total after loyalty discount: ${total_after_discount:.2f}")
+
+# Test Case 9: Apply bulk purchase discount
+print("\n--- Test Case 9: Apply Bulk Purchase Discount ---")
+discount_policy_bulk = DiscountPolicy("Bulk Purchase", 20)  # 20% discount for bulk purchase of 5+ items
+if sum(item._quantity for item in user2._shopping_bag._items) >= 5:
+    total_after_bulk_discount = discount_policy_bulk.apply_discount(total_before_discount)
+    print(f"Total after bulk purchase discount: ${total_after_bulk_discount:.2f}")
+else:
+    print("Bulk purchase discount not applicable (less than 5 items).")
+
+# Test Case 10: Generate an invoice for a customer order
+print("\n--- Test Case 10: Generate Invoice ---")
+order = OrderDetails()
+order.add_book(book1)
+order.add_book(book2)
+receipt = order.generate_receipt()
+print(order)
+print(receipt)

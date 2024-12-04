@@ -3,8 +3,11 @@ from tkinter import messagebox
 from tkinter import simpledialog
 
 
-# ---- Ticket Classes ----
+# Ticket Classes 
 class Ticket:
+    """
+    class for tickets
+    """
     def __init__(self, ticketID, price, validity, features=""):
         self.ticketID = ticketID
         self.price = price
@@ -19,11 +22,17 @@ class Ticket:
 
 
 class SingleDayPass(Ticket):
+    """
+    Class for single day pass ticket
+    """
     def __init__(self, ticketID, price, validity="1 Day"):
         super().__init__(ticketID, price, validity)
 
 
 class MultiDayPass(Ticket):
+    """
+    Class for multi day pass tickets with online discount.
+    """
     def __init__(self, ticketID, price, validity, discount=False):
         super().__init__(ticketID, price, validity)
         self.discount = discount
@@ -40,6 +49,9 @@ class MultiDayPass(Ticket):
 
 
 class GroupDiscountPass(Ticket):
+    """
+    Class for group discount passes with discount for groups of 5 or more
+    """
     def __init__(self, ticketID, price, validity, groupSize):
         super().__init__(ticketID, price, validity)
         self.groupSize = groupSize
@@ -55,9 +67,12 @@ class GroupDiscountPass(Ticket):
         return details
 
 
-# ---- User and Admin Classes ----
+
 
 class Guest:
+    """
+    Class for guest user
+    """
     def __init__(self, guestID, guestName, guestNumber, guestEmail):
         self.guestID = guestID
         self.guestName = guestName
@@ -75,6 +90,9 @@ class Guest:
 
 
 class Admin:
+    """
+    Class for admin users
+    """
     def __init__(self, adminID, adminName):
         self.adminID = adminID
         self.adminName = adminName
@@ -90,9 +108,12 @@ class Admin:
         pass
 
 
-# ---- GUI ----
+#GUI 
 
 class TicketSystemApp:
+    """
+    class for ticket booking
+    """
     def __init__(self, root):
         self.root = root
         self.root.title("Ticket Booking System")
@@ -133,7 +154,7 @@ class TicketSystemApp:
             messagebox.showerror("Login Failed", "Invalid credentials!")
 
     def create_account(self):
-        """Handles user account creation."""
+        """for creating user account"""
         username = self.username_entry.get()
         password = self.password_entry.get()
 
@@ -150,7 +171,7 @@ class TicketSystemApp:
             messagebox.showerror("Error", "Account already exists.")
 
     def show_customer_dashboard(self):
-        """Displays the dashboard after login."""
+        """shows the dashboard after login"""
         dashboard_frame = tk.Frame(self.root)
         dashboard_frame.pack()
 
@@ -161,7 +182,7 @@ class TicketSystemApp:
         tk.Button(dashboard_frame, text="Update Profile", command=self.update_profile).grid(row=3, column=0)
 
     def view_purchase_history(self):
-        """Displays the guest's purchase history."""
+        """shows the guest's purchase history."""
         history_frame = tk.Frame(self.root)
         history_frame.pack()
 
@@ -172,7 +193,7 @@ class TicketSystemApp:
             tk.Label(history_frame, text=f"{idx+1}. {ticket.get_details()}").grid(row=idx+1, column=0)
 
     def show_ticket_purchasing(self):
-        """Displays the available ticket types."""
+        """shows the available ticket types"""
         ticket_frame = tk.Frame(self.root)
         ticket_frame.pack()
 
@@ -188,7 +209,7 @@ class TicketSystemApp:
         group_discount_button.grid(row=3, column=0)
 
     def purchase_ticket(self, ticket_type):
-        """Handles ticket purchase logic."""
+        """handles ticket purchase logic."""
         if ticket_type == 'Single Day Pass':
             ticket = SingleDayPass("1", 50)
         elif ticket_type == 'Multi-Day Pass':
@@ -206,7 +227,7 @@ class TicketSystemApp:
         messagebox.showinfo("Purchase Successful", f"You have purchased a {ticket_type}!\nDetails: {ticket.get_details()}")
 
     def update_profile(self):
-        """Allows users to update their profile details."""
+        """allows users to update their profile details"""
         name = simpledialog.askstring("Update Name", "Enter new name:")
         number = simpledialog.askstring("Update Number", "Enter new contact number:")
         email = simpledialog.askstring("Update Email", "Enter new email:")
@@ -215,7 +236,7 @@ class TicketSystemApp:
         messagebox.showinfo("Profile Updated", "Your profile has been updated.")
 
     def show_admin_dashboard(self):
-        """Displays the admin dashboard."""
+        """shows the admin dashboard."""
         admin_frame = tk.Frame(self.root)
         admin_frame.pack()
 
@@ -230,14 +251,14 @@ class TicketSystemApp:
         tk.Button(admin_frame, text="Modify Discount", command=self.modify_discount).grid(row=3, column=0)
 
     def modify_discount(self):
-        """Allow the admin to modify ticket discount."""
+        """allows the admin to modify ticket discount."""
         ticketID = simpledialog.askstring("Ticket ID", "Enter ticket ID:")
         discount_percent = simpledialog.askfloat("Discount Percent", "Enter discount percentage:")
         # Apply discount logic for a ticket ID (not implemented here)
         messagebox.showinfo("Discount Modified", f"Discount for Ticket {ticketID} set to {discount_percent}%")
 
 
-# ---- Main Execution ----
+# testings
 root = tk.Tk()
 app = TicketSystemApp(root)
 root.mainloop()

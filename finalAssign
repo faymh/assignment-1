@@ -2,12 +2,9 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import simpledialog
 
-
-# Ticket Classes 
+# ticket classes
 class Ticket:
-    """
-    class for tickets
-    """
+    # base class for tickets
     def __init__(self, ticketID, price, validity, features=""):
         self.ticketID = ticketID
         self.price = price
@@ -20,19 +17,13 @@ class Ticket:
     def get_details(self):
         return f"Ticket ID: {self.ticketID}, Price: {self.price}, Validity: {self.validity}, Features: {self.features}"
 
-
 class SingleDayPass(Ticket):
-    """
-    Class for single day pass ticket
-    """
+    # class for single day pass
     def __init__(self, ticketID, price, validity="1 Day"):
         super().__init__(ticketID, price, validity)
 
-
 class MultiDayPass(Ticket):
-    """
-    Class for multi day pass tickets with online discount.
-    """
+    # class for multi-day pass with optional discount
     def __init__(self, ticketID, price, validity, discount=False):
         super().__init__(ticketID, price, validity)
         self.discount = discount
@@ -43,36 +34,25 @@ class MultiDayPass(Ticket):
 
     def get_details(self):
         details = super().get_details()
-        if self.discount:
-            return f"{details} - Discount Applied: 10%"
-        return details
-
+        return f"{details} - Discount Applied: 10%" if self.discount else details
 
 class GroupDiscountPass(Ticket):
-    """
-    Class for group discount passes with discount for groups of 5 or more
-    """
+    # class for group passes with discounts for groups of 5 or more
     def __init__(self, ticketID, price, validity, groupSize):
         super().__init__(ticketID, price, validity)
         self.groupSize = groupSize
 
     def apply_group_discount(self):
         if self.groupSize >= 5:
-            self.price *= 0.8  # 20% discount for group size of 5 or more
+            self.price *= 0.8  # 20% discount for large groups
 
     def get_details(self):
         details = super().get_details()
-        if self.groupSize >= 5:
-            return f"{details} - Group Discount Applied: 20%"
-        return details
+        return f"{details} - Group Discount Applied: 20%" if self.groupSize >= 5 else details
 
-
-
-
+# guest class
 class Guest:
-    """
-    Class for guest user
-    """
+    # stores guest details and purchase history
     def __init__(self, guestID, guestName, guestNumber, guestEmail):
         self.guestID = guestID
         self.guestName = guestName
@@ -88,11 +68,9 @@ class Guest:
         self.guestNumber = number
         self.guestEmail = email
 
-
+# admin class
 class Admin:
-    """
-    Class for admin users
-    """
+    # admin for tracking sales
     def __init__(self, adminID, adminName):
         self.adminID = adminID
         self.adminName = adminName
@@ -103,49 +81,35 @@ class Admin:
             self.salesData[ticketID] = 0
         self.salesData[ticketID] += quantity
 
-    def modify_discount(self, ticketID, discount_percent):
-        # Modify discount for a specific ticket
-        pass
-
-
-#GUI 
-
+# main application
 class TicketSystemApp:
-    """
-    class for ticket booking
-    """
+    # main class for GUI
     def __init__(self, root):
         self.root = root
         self.root.title("Ticket Booking System")
-
-        self.guest = None  # Initially no guest is logged in
-        self.admin = Admin("admin01", "Administrator")  # Admin for tracking sales
-        self.customers = {}  # Store customers' data
-        self.bookings = []  # Store all bookings
-
+        self.guest = None
+        self.admin = Admin("admin01", "Administrator")
+        self.customers = {}
+        self.bookings = []
         self.create_login_screen()
 
     def create_login_screen(self):
-        """Creates the login screen for users to log in or create an account."""
+        # creates login screen
         self.login_frame = tk.Frame(self.root)
         self.login_frame.pack()
-
         tk.Label(self.login_frame, text="Username:").grid(row=0, column=0)
         self.username_entry = tk.Entry(self.login_frame)
         self.username_entry.grid(row=0, column=1)
-
         tk.Label(self.login_frame, text="Password:").grid(row=1, column=0)
         self.password_entry = tk.Entry(self.login_frame, show="*")
         self.password_entry.grid(row=1, column=1)
-
         tk.Button(self.login_frame, text="Login", command=self.login).grid(row=2, columnspan=2)
         tk.Button(self.login_frame, text="Create Account", command=self.create_account).grid(row=3, columnspan=2)
 
     def login(self):
-        """Handles login functionality."""
+        # handles user login
         username = self.username_entry.get()
         password = self.password_entry.get()
-
         if username in self.customers and self.customers[username]["password"] == password:
             self.guest = self.customers[username]["guest"]
             self.login_frame.pack_forget()
@@ -154,62 +118,48 @@ class TicketSystemApp:
             messagebox.showerror("Login Failed", "Invalid credentials!")
 
     def create_account(self):
-        """for creating user account"""
+        # allows account creation
         username = self.username_entry.get()
         password = self.password_entry.get()
-
         if username not in self.customers:
             guest_name = simpledialog.askstring("Guest Name", "Enter your name:")
             guest_number = simpledialog.askstring("Guest Number", "Enter your contact number:")
             guest_email = simpledialog.askstring("Guest Email", "Enter your email:")
-
             guest = Guest(username, guest_name, guest_number, guest_email)
             self.customers[username] = {"password": password, "guest": guest}
-
             messagebox.showinfo("Account Created", f"Account for {username} created successfully!")
         else:
             messagebox.showerror("Error", "Account already exists.")
 
     def show_customer_dashboard(self):
-        """shows the dashboard after login"""
+        # displays customer dashboard
         dashboard_frame = tk.Frame(self.root)
         dashboard_frame.pack()
-
         tk.Label(dashboard_frame, text=f"Welcome {self.guest.guestName}!").grid(row=0, column=0)
-
         tk.Button(dashboard_frame, text="View Purchase History", command=self.view_purchase_history).grid(row=1, column=0)
         tk.Button(dashboard_frame, text="Purchase Tickets", command=self.show_ticket_purchasing).grid(row=2, column=0)
         tk.Button(dashboard_frame, text="Update Profile", command=self.update_profile).grid(row=3, column=0)
 
     def view_purchase_history(self):
-        """shows the guest's purchase history."""
+        # shows purchase history
         history_frame = tk.Frame(self.root)
         history_frame.pack()
-
         tk.Label(history_frame, text="Purchase History:").grid(row=0, column=0)
-
         history = self.guest.view_purchase_history()
         for idx, ticket in enumerate(history):
-            tk.Label(history_frame, text=f"{idx+1}. {ticket.get_details()}").grid(row=idx+1, column=0)
+            tk.Label(history_frame, text=f"{idx + 1}. {ticket.get_details()}").grid(row=idx + 1, column=0)
 
     def show_ticket_purchasing(self):
-        """shows the available ticket types"""
+        # shows ticket purchase options
         ticket_frame = tk.Frame(self.root)
         ticket_frame.pack()
-
         tk.Label(ticket_frame, text="Select Ticket Type").grid(row=0, column=0)
-
-        single_day_button = tk.Button(ticket_frame, text="Single Day Pass", command=lambda: self.purchase_ticket('Single Day Pass'))
-        single_day_button.grid(row=1, column=0)
-
-        multi_day_button = tk.Button(ticket_frame, text="Multi-Day Pass", command=lambda: self.purchase_ticket('Multi-Day Pass'))
-        multi_day_button.grid(row=2, column=0)
-
-        group_discount_button = tk.Button(ticket_frame, text="Group Discount Pass", command=lambda: self.purchase_ticket('Group Discount Pass'))
-        group_discount_button.grid(row=3, column=0)
+        tk.Button(ticket_frame, text="Single Day Pass", command=lambda: self.purchase_ticket('Single Day Pass')).grid(row=1, column=0)
+        tk.Button(ticket_frame, text="Multi-Day Pass", command=lambda: self.purchase_ticket('Multi-Day Pass')).grid(row=2, column=0)
+        tk.Button(ticket_frame, text="Group Discount Pass", command=lambda: self.purchase_ticket('Group Discount Pass')).grid(row=3, column=0)
 
     def purchase_ticket(self, ticket_type):
-        """handles ticket purchase logic."""
+        # processes ticket purchase
         if ticket_type == 'Single Day Pass':
             ticket = SingleDayPass("1", 50)
         elif ticket_type == 'Multi-Day Pass':
@@ -219,46 +169,40 @@ class TicketSystemApp:
             group_size = simpledialog.askinteger("Group Size", "Enter group size:")
             ticket = GroupDiscountPass("3", 150, "Multiple Days", group_size)
             ticket.apply_group_discount()
-
         self.guest.purchaseHistory.append(ticket)
         self.admin.track_sales(ticket.ticketID, 1)
-
-        # Show ticket details with price and discount
         messagebox.showinfo("Purchase Successful", f"You have purchased a {ticket_type}!\nDetails: {ticket.get_details()}")
 
     def update_profile(self):
-        """allows users to update their profile details"""
+        # updates profile information
         name = simpledialog.askstring("Update Name", "Enter new name:")
         number = simpledialog.askstring("Update Number", "Enter new contact number:")
         email = simpledialog.askstring("Update Email", "Enter new email:")
-
         self.guest.update_profile(name, number, email)
         messagebox.showinfo("Profile Updated", "Your profile has been updated.")
 
     def show_admin_dashboard(self):
-        """shows the admin dashboard."""
+        # shows admin dashboard
         admin_frame = tk.Frame(self.root)
         admin_frame.pack()
-
         tk.Label(admin_frame, text="Admin Dashboard").grid(row=0, column=0)
-
-        # Sales info
-        tk.Label(admin_frame, text="Ticket Sales (Per Day)").grid(row=1, column=0)
         for ticket_id, sales in self.admin.salesData.items():
-            tk.Label(admin_frame, text=f"Ticket {ticket_id}: {sales} sold").grid(row=2, column=0)
+            tk.Label(admin_frame, text=f"Ticket {ticket_id}: {sales} sold").grid(row=ticket_id, column=0)
+        tk.Button(admin_frame, text="Modify Discounts", command=self.modify_discounts).grid(row=2, column=0)
+        tk.Button(admin_frame, text="Logout", command=self.logout_admin).grid(row=3, column=0)
 
-        # Modify discounts
-        tk.Button(admin_frame, text="Modify Discount", command=self.modify_discount).grid(row=3, column=0)
+    def modify_discounts(self):
+        # allows admin to modify ticket discounts
+        ticket_id = simpledialog.askstring("Ticket ID", "Enter the Ticket ID:")
+        discount_percent = simpledialog.askinteger("Discount", "Enter the new discount percentage:")
+        messagebox.showinfo("Modify Discounts", f"Discount for Ticket {ticket_id} set to {discount_percent}%")
 
-    def modify_discount(self):
-        """allows the admin to modify ticket discount."""
-        ticketID = simpledialog.askstring("Ticket ID", "Enter ticket ID:")
-        discount_percent = simpledialog.askfloat("Discount Percent", "Enter discount percentage:")
-        # Apply discount logic for a ticket ID (not implemented here)
-        messagebox.showinfo("Discount Modified", f"Discount for Ticket {ticketID} set to {discount_percent}%")
+    def logout_admin(self):
+        # logs out admin
+        messagebox.showinfo("Logout", "Admin logged out successfully.")
+        self.root.quit()
 
-
-# testings
+# runs the application
 root = tk.Tk()
 app = TicketSystemApp(root)
 root.mainloop()

@@ -1,0 +1,278 @@
+import mysql.connector
+from mysql.connector import errorcode
+#DB Connection
+try:
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="",  # Add your MySQL password if you have one
+    )
+    cursor = conn.cursor()
+    print("Connected to MySQL.")
+except mysql.connector.Error as err:
+    print("Error:", err)
+
+#Part 4: Create Database and Tables
+try:
+    cursor.execute("CREATE DATABASE IF NOT EXISTS study_club")
+    cursor.execute("USE study_club")
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Students (
+        student_id INT PRIMARY KEY,
+        name VARCHAR(50),
+        email VARCHAR(50)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Tutors (
+        tutor_id VARCHAR(10) PRIMARY KEY,
+        name VARCHAR(50),
+        email VARCHAR(50)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Courses (
+        course_id VARCHAR(10) PRIMARY KEY,
+        name VARCHAR(50),
+        tutor_id VARCHAR(10),
+        FOREIGN KEY (tutor_id) REFERENCES Tutors(tutor_id) ON DELETE SET NULL
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Sessions (
+        session_id VARCHAR(10) PRIMARY KEY,
+        student_id INT,
+        course_id VARCHAR(10),
+        session_time DATETIME,
+        status VARCHAR(20),
+        FOREIGN KEY (student_id) REFERENCES Students(student_id) ON DELETE CASCADE,
+        FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Ratings (
+        rating_id VARCHAR(10) PRIMARY KEY,
+        session_id VARCHAR(10),
+        rating INT CHECK (rating BETWEEN 1 AND 5),
+        review TEXT,
+        FOREIGN KEY (session_id) REFERENCES Sessions(session_id) ON DELETE CASCADE
+    )
+    PARTITION BY RANGE (rating) (
+        PARTITION p1 VALUES LESS THAN (2),
+        PARTITION p2 VALUES LESS THAN (3),
+        PARTITION p3 VALUES LESS THAN (4),
+        PARTITION p4 VALUES LESS THAN (5),
+        PARTITION p5 VALUES LESS THAN MAXVALUE
+    )
+    """)
+
+    print("Tables created.")
+
+except mysql.connector.Error as err:
+    print("Error in table creation:", err)
+
+#Part 5: Insert Sample Data
+try:
+    cursor.execute("DELETE FROM Ratings")
+    cursor.execute("DELETE FROM Sessions")
+    cursor.execute("DELETE FROM Courses")
+    cursor.execute("DELETE FROM Tutors")
+    cursor.execute("DELETE FROM Students")
+
+    cursor.executemany("INSERT INTO Students VALUES (%s, %s, %s)", [
+        (202222015, 'Ayesha Almansoori', '202222015@zu.ac.ae'),
+        (202232351, 'Fay Albalooshi', '202232351@zu.ac.ae'),
+        (202230082, 'Maryam Alhammadi', '202230082@zu.ac.ae'),
+        (202230442, 'Roudha Alshaikh', '202230442@zu.ac.ae'),
+        (202280069, 'Shatha Alshehhi', '202280069@zu.ac.ae')
+    ])
+
+    cursor.executemany("INSERT INTO Tutors VALUES (%s, %s, %s)", [
+        ('Z00123', 'Nishara Nizamuddin', 'nishara@zu.ac.ae'),
+        ('Z00456', 'Jotsna Rajan', 'jotsna@zu.ac.ae'),
+        ('Z00789', 'Tarannum Parkar', 'tarannum@zu.ac.ae'),
+        ('Z001011', 'Ihab Abdelwahed', 'ihab@zu.ac.ae')
+    ])
+
+    cursor.executemany("INSERT INTO Courses VALUES (%s, %s, %s)", [
+        ('ICS350', 'Introduction to AI', 'Z00123'),
+        ('ICS340', 'Database Systems', 'Z00456'),
+        ('ICS221', 'Data Structures and Algorithms', 'Z00789'),
+        ('ICS211', 'Single and Multivariable Calculus', 'Z001011')
+    ])
+
+    cursor.executemany("INSERT INTO Sessions VALUES (%s, %s, %s, %s, %s)", [
+        ('S001', 202222015, 'ICS350', '2025-05-04 14:00:00', 'Complete'),
+        ('S002', 202232351, 'ICS340', '2025-05-05 16:00:00', 'Canceled'),
+        ('S003', 202230082, 'ICS221', '2025-05-06 12:00:00', 'Booked'),
+        ('S004', 202230442, 'ICS211', '2025-05-07 15:00:00', 'Booked')
+    ])
+
+    cursor.executemany("INSERT INTO Ratings VALUES (%s, %s, %s, %s)", [
+        ('R001', 'S001', 3, 'Still need explanation'),
+        ('R002', 'S002', 4, 'Very clear session'),
+        ('R003', 'S003', 5, 'Excellent explanation'),
+        ('R004', 'S004', 5, 'Excellent explanation')
+    ])
+
+    conn.commit()
+    print("Sample data inserted.")
+
+except mysql.connector.Error as err:
+    print("Insert error:", err)
+
+#Part 6: Query for Tutors with 'Ha' in Name and Calculus
+print("\n Tutors with 'Ha' in last name and Calculus course:")
+cursor.execute("""
+SELECT T.name, C.name 
+FROM Tutors T 
+JOIN Courses C ON T.tutor_id = C.tutor_id 
+WHERE T.name LIKE '%Ha%' AND C.name LIKE '%Calculus%'
+""")
+for row in cursor.fetchall():
+    print(row)
+
+#Part 7: Students with/without Appointments
+print("\n Students with or without appointments:")
+cursor.execute("""
+SELECT S.name, S.email, A.session_id, A.session_time
+FROM Students S
+LEFT JOIN Sessions A ON S.student_id = A.student_id
+ORDER BY S.name
+""")
+for row in cursor.fetchall():
+    print(row)
+
+# Part 8: Students Who Are Also Tutors
+print("\n Students who are also tutors:")
+cursor.execute("""
+SELECT S.name, S.email 
+FROM Students S 
+JOIN Tutors T ON S.name = T.name AND S.email = T.email
+""")
+results = cursor.fetchall()
+if results:
+    for row in results:
+        print(row)
+else:
+    print("No students are also tutors.")
+
+
+#Part 9: Custom Query(Average Rating Per Tutor)
+print("\n Average rating per tutor:")
+cursor.execute("""
+SELECT T.name, AVG(R.rating) 
+FROM Tutors T 
+JOIN Courses C ON T.tutor_id = C.tutor_id 
+JOIN Sessions S ON C.course_id = S.course_id 
+JOIN Ratings R ON S.session_id = R.session_id 
+GROUP BY T.name
+""")
+for row in cursor.fetchall():
+    print(row)
+
+#Part 10: Transaction to Avoid Double Booking
+print("\n Booking a session with transaction...")
+try:
+    conn.start_transaction()
+
+    cursor.execute("""
+    SELECT * FROM Sessions 
+    WHERE course_id = 'ICS340' AND session_time = '2025-05-10 10:00:00' FOR UPDATE
+    """)
+    existing = cursor.fetchall()
+
+    if not existing:
+        cursor.execute("""
+        INSERT INTO Sessions (session_id, student_id, course_id, session_time, status)
+        VALUES ('S005', 202280069, 'ICS340', '2025-05-10 10:00:00', 'Booked')
+        """)
+        conn.commit()
+        print(" Session booked.")
+    else:
+        conn.rollback()
+        print(" Tutor already booked at that time.")
+
+except mysql.connector.Error as err:
+    conn.rollback()
+    print(" Transaction error:", err)
+
+
+import mysql.connector
+
+# Connect to the study_club database
+conn = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="",
+    database="study_club"
+)
+cursor = conn.cursor()
+
+def insert_student():
+    try:
+        student_id = int(input("Enter student ID: "))
+        name = input("Enter student full name: ")
+        email = input("Enter student email: ")
+        query = "INSERT INTO Students (student_id, name, email) VALUES (%s, %s, %s)"
+        cursor.execute(query, (student_id, name, email))
+        conn.commit()
+        print("Student added successfully.")
+    except mysql.connector.Error as err:
+        print("Error inserting student:", err)
+
+def view_students():
+    cursor.execute("SELECT * FROM Students")
+    students = cursor.fetchall()
+    if students:
+        print("List of students:")
+        for student in students:
+            print(f"ID: {student[0]} | Name: {student[1]} | Email: {student[2]}")
+    else:
+        print("No students found.")
+
+def update_student_email():
+    try:
+        student_id = int(input("Enter student ID to update: "))
+        new_email = input("Enter new email: ")
+        query = "UPDATE Students SET email = %s WHERE student_id = %s"
+        cursor.execute(query, (new_email, student_id))
+        conn.commit()
+        if cursor.rowcount > 0:
+            print("Email updated successfully.")
+        else:
+            print("Student not found.")
+    except mysql.connector.Error as err:
+        print("Error updating email:", err)
+
+def main_menu():
+    while True:
+        print("\n--- Study Club Menu ---")
+        print("1. Add a new student")
+        print("2. View all students")
+        print("3. Update student email")
+        print("4. Exit")
+        choice = input("Choose an option (1-4): ")
+
+        if choice == "1":
+            insert_student()
+        elif choice == "2":
+            view_students()
+        elif choice == "3":
+            update_student_email()
+        elif choice == "4":
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+main_menu()
+
+# Close connection
+cursor.close()
+conn.close()
